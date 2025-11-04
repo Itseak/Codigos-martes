@@ -1,0 +1,194 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Empleado {
+private:
+    string clave;
+    string nombre;
+    string domicilio;
+    float sueldo;
+    string jefe;
+
+public:
+
+    Empleado(string clave = "", string nombre = "", string domicilio = "", float sueldo = 0.0, string jefe = "")
+        : clave(clave), nombre(nombre), domicilio(domicilio), sueldo(sueldo), jefe(jefe) {}
+
+
+    string getClave() const { return clave; }
+    string getNombre() const { return nombre; }
+    string getDomicilio() const { return domicilio; }
+    float getSueldo() const { return sueldo; }
+    string getJefe() const { return jefe; }
+
+
+    void cambiarDomicilio(const string& nuevoDomicilio) { domicilio = nuevoDomicilio; }
+    void actualizarSueldo(float porcentaje) { sueldo += sueldo * (porcentaje / 100); }
+    void cambiarJefe(const string& nuevoJefe) { jefe = nuevoJefe; }
+
+    operator==(const Empleado& otro) const { return clave == otro.clave; }
+
+
+    operator!=(const Empleado& otro) const { return !(*this == otro); }
+
+
+    operator<(const Empleado& otro) const { return sueldo < otro.sueldo; }
+    operator>(const Empleado& otro) const { return sueldo > otro.sueldo; }
+
+
+    Empleado operator+(const Empleado& otro) const {
+        return Empleado(
+            clave + "-" + otro.clave,
+            nombre + " & " + otro.nombre,
+            domicilio + " / " + otro.domicilio,
+            sueldo + otro.sueldo,
+            jefe + " / " + otro.jefe
+        );
+    }
+
+
+    friend ostream& operator<<(ostream& os, const Empleado& e) {
+        os << "Clave: " << e.clave << endl
+           << "Nombre: " << e.nombre << endl
+           << "Domicilio: " << e.domicilio << endl
+           << "Sueldo: " << e.sueldo << endl
+           << "Reporta a: " << e.jefe << endl;
+        return os;
+    }
+
+
+    friend istream& operator>>(istream& is, Empleado& e) {
+        cout << "Ingrese clave: ";
+        is >> e.clave;
+        is.ignore();
+        cout << "Ingrese nombre: ";
+        getline(is, e.nombre);
+        cout << "Ingrese domicilio: ";
+        getline(is, e.domicilio);
+        cout << "Ingrese sueldo: ";
+        is >> e.sueldo;
+        is.ignore();
+        cout << "Ingrese nombre del jefe: ";
+        getline(is, e.jefe);
+        return is;
+    }
+};
+
+
+int main() {
+    Empleado JefePlanta("001", "Antonio Molina", "Calle Morelos 1741", 5000.0, "Giovanna Lopez");
+    Empleado JefePersonal("002", "Miguel Garcia", "Avenida Mexico 2411", 3000.0, "Giovanna Lopez");
+
+    int opcion;
+    string clave, nuevoDomicilio, nuevoJefe;
+    float porcentaje;
+
+    do {
+
+        cout << "Seleccione una opcion\n";
+        cout << "1. Cambiar el domicilio de un empleado\n";
+        cout << "2. Actualizar el sueldo de un empleado\n";
+        cout << "3. Imprimir los datos de un empleado\n";
+        cout << "4. Cambiar el nombre del jefe de un empleado\n";
+        cout << "5. Comparar empleados (==, <, >)\n";
+        cout << "6. Unir empleados (+)\n";
+        cout << "7. Salir\n";
+        cout << "Seleccione una opcion: ";
+        cin >> opcion;
+        cin.ignore();
+
+        switch (opcion) {
+        case 1:
+            cout << "Ingrese la clave del empleado: ";
+            cin >> clave;
+            cin.ignore();
+            cout << "Ingrese el nuevo domicilio: ";
+            getline(cin, nuevoDomicilio);
+
+            if (clave == JefePlanta.getClave()) {
+                JefePlanta.cambiarDomicilio(nuevoDomicilio);
+                cout << "Domicilio actualizado para Jefe de Planta.\n";
+            } else if (clave == JefePersonal.getClave()) {
+                JefePersonal.cambiarDomicilio(nuevoDomicilio);
+                cout << "Domicilio actualizado para Jefe de Personal.\n";
+            } else {
+                cout << "Clave no encontrada.\n";
+            }
+            break;
+
+        case 2:
+            cout << "Ingrese la clave del empleado: ";
+            cin >> clave;
+            cout << "Ingrese el porcentaje de incremento: ";
+            cin >> porcentaje;
+
+            if (clave == JefePlanta.getClave()) {
+                JefePlanta.actualizarSueldo(porcentaje);
+                cout << "Sueldo actualizado para Jefe de Planta.\n";
+            } else if (clave == JefePersonal.getClave()) {
+                JefePersonal.actualizarSueldo(porcentaje);
+                cout << "Sueldo actualizado para Jefe de Personal.\n";
+            } else {
+                cout << "Clave no encontrada.\n";
+            }
+            break;
+
+        case 3:
+            cout << "Ingrese la clave del empleado: ";
+            cin >> clave;
+
+            if (clave == JefePlanta.getClave())
+                cout << JefePlanta;
+            else if (clave == JefePersonal.getClave())
+                cout << JefePersonal;
+            else
+                cout << "Empleado no encontrado.\n";
+            break;
+
+        case 4:
+            cout << "Ingrese la clave del empleado: ";
+            cin >> clave;
+            cin.ignore();
+            cout << "Ingrese el nuevo nombre del jefe: ";
+            getline(cin, nuevoJefe);
+
+            if (clave == JefePlanta.getClave()) {
+                JefePlanta.cambiarJefe(nuevoJefe);
+                cout << "Jefe actualizado para Jefe de Planta.\n";
+            } else if (clave == JefePersonal.getClave()) {
+                JefePersonal.cambiarJefe(nuevoJefe);
+                cout << "Jefe actualizado para Jefe de Personal.\n";
+            } else {
+                cout << "Clave no encontrada.\n";
+            }
+            break;
+
+        case 5:
+            cout << "Comparando empleados:\n";
+            if (JefePlanta == JefePersonal)
+                cout << "Son el mismo empleado (claves iguales).\n";
+            else if (JefePlanta > JefePersonal)
+                cout << "Jefe de Planta gana más que Jefe de Personal.\n";
+            else
+                cout << "Jefe de Personal gana más que Jefe de Planta.\n";
+            break;
+
+        case 6: {
+            Empleado combinado = JefePlanta + JefePersonal;
+            cout << "\nEmpleado combinado:\n" << combinado;
+            break;
+        }
+
+        case 7:
+            cout << "Saliendo del programa...\n";
+            break;
+
+        default:
+            cout << "Opción no válida. Intente nuevamente.\n";
+        }
+
+    } while (opcion != 7);
+
+    return 0;
+}
