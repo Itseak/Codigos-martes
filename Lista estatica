@@ -32,10 +32,10 @@ public:
 
     void mostrar() const {
         cout << "Clave: " << clave
-             << " | Nombre: " << nombre
-             << " | Domicilio: " << domicilio
-             << " | Sueldo: " << sueldo
-             << " | Jefe: " << jefe << endl;
+             << "Nombre: " << nombre
+             << "Domicilio: " << domicilio
+             << "Sueldo: " << sueldo
+             << "Jefe: " << jefe << endl;
     }
 
     string getClave() const { return clave; }
