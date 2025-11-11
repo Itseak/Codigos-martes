@@ -1,0 +1,167 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Empleado {
+private:
+    string clave;
+    string nombre;
+    string domicilio;
+    float sueldo;
+    string jefe;
+
+public:
+    Empleado() : clave(""), nombre(""), domicilio(""), sueldo(0.0), jefe("") {}
+
+    void leer() {
+        cout << "Ingrese la clave: ";
+        cin >> clave;
+        cin.ignore();
+        cout << "Ingrese el nombre: ";
+        getline(cin, nombre);
+        cout << "Ingrese el domicilio: ";
+        getline(cin, domicilio);
+        cout << "Ingrese el sueldo: ";
+        cin >> sueldo;
+        cin.ignore();
+        cout << "Ingrese el nombre del jefe: ";
+        getline(cin, jefe);
+    }
+
+    void mostrar() const {
+        cout << "Clave: " << clave
+             << "Nombre: " << nombre
+             << "Domicilio: " << domicilio
+             << "Sueldo: " << sueldo
+             << "Jefe: " << jefe << endl;
+    }
+};
+#include <iostream>
+using namespace std;
+
+const int Tam = 500;
+
+class PilaEmpleado {
+private:
+    Empleado datos[Tam];
+    int ult;
+
+public:
+    PilaEmpleado() { ult = -1; }
+
+    bool vacia() const {
+        return (ult == -1);
+    }
+
+    bool llena() const {
+        return (ult == Tam - 1);
+    }
+
+    void push(const Empleado &elem) {
+        if (llena()) {
+            cout << "\nError: la pila está llena, no se puede insertar.\n";
+        } else {
+            ult++;
+            datos[ult] = elem;
+            cout << "Empleado agregado a la pila.\n";
+        }
+    }
+
+    void pop() {
+        if (vacia()) {
+            cout << "\nError: la pila está vacia, no se puede eliminar.\n";
+        } else {
+            cout << "Empleado eliminado:\n";
+            datos[ult].mostrar();
+            ult--;
+        }
+    }
+
+    void top() const {
+        if (vacia()) {
+            cout << "\nLa pila está vacia.\n";
+        } else {
+            cout << "Empleado en el tope de la pila:\n";
+            datos[ult].mostrar();
+        }
+    }
+
+    void mostrarPila() const {
+        if (vacia()) {
+            cout << "\nLa pila está vacia.\n";
+            return;
+        }
+        cout << "\n--- Empleados en la pila ---\n";
+        for (int i = ult; i >= 0; i--) {
+            cout << "[" << i << "] ";
+            datos[i].mostrar();
+        }
+    }
+};
+int main() {
+    PilaEmpleado pila;
+    int opcion;
+
+    do {
+        cout << "\-------- MENU PILA DE EMPLEADOS -------\n";
+        cout << "1. Push (Agregar Empleado)\n";
+        cout << "2. Pop (Eliminar Empleado)\n";
+        cout << "3. Top (Mostrar tope de la pila)\n";
+        cout << "4. Mostrar pila completa\n";
+        cout << "5. ¿Pila vacia?\n";
+        cout << "6. ¿Pila llena?\n";
+        cout << "7. Salir\n";
+        cout << "Elige una opcion: ";
+        cin >> opcion;
+
+        switch (opcion) {
+        case 1: {
+            if (pila.llena()) {
+                cout << "No se puede agregar. La pila esta llena.\n";
+            } else {
+                Empleado e;
+                e.leer();
+                pila.push(e);
+            }
+            break;
+        }
+
+        case 2:
+            pila.pop();
+            break;
+
+        case 3:
+            pila.top();
+            break;
+
+        case 4:
+            pila.mostrarPila();
+            break;
+
+        case 5:
+            if (pila.vacia())
+                cout << "La pila esta vacia.\n";
+            else
+                cout << "La pila NO esta vacia.\n";
+            break;
+
+        case 6:
+            if (pila.llena())
+                cout << "La pila esta llena.\n";
+            else
+                cout << "La pila NO esta llena.\n";
+            break;
+
+        case 7:
+            cout << "Adiooooooos...\n";
+            break;
+
+        default:
+            cout << "Opcion no valida.\n";
+        }
+
+    } while (opcion != 7);
+
+    return 0;
+}
+
