@@ -1,0 +1,170 @@
+#include <iostream>
+#include <string>
+#include <queue>
+#include <stdexcept>
+
+template <typename T>
+class Cola {
+private:
+    std::queue<T> datos;
+
+public:
+    void enqueue(const T& elemento){
+        datos.push(elemento);
+    }
+
+    T dequeue(){
+        if(datos.empty())
+            throw std::runtime_error("La cola está vacía");
+        T aux = datos.front();
+        datos.pop();
+        return aux;
+    }
+
+    bool empty() const {
+        return datos.empty();
+    }
+
+    int size() const {
+        return datos.size();
+    };
+
+    std::queue<T> getQueue() const {
+        return datos;
+    }
+};
+
+
+class Alumno {
+private:
+    std::string nombre;
+    std::string carrera;
+    int materiasAprobadas;
+    float promedio;
+
+public:
+    Alumno() : nombre(""), carrera(""), materiasAprobadas(0), promedio(0) {}
+
+    std::string getNombre() const { return nombre; }
+
+
+    friend std::istream& operator>>(std::istream& in, Alumno& a){
+        std::cout << "Nombre del alumno: ";
+        getline(in, a.nombre);
+
+        std::cout << "Carrera: ";
+        getline(in, a.carrera);
+
+        std::cout << "Total de materias aprobadas: ";
+        in >> a.materiasAprobadas;
+
+        std::cout << "Promedio general: ";
+        in >> a.promedio;
+
+        in.ignore();
+        return in;
+    }
+
+
+    friend std::ostream& operator<<(std::ostream& out, const Alumno& a){
+        out << "\nCONSTANCIA DE ALUMNO\n";
+        out << "Nombre: " << a.nombre << "\n";
+        out << "Carrera: " << a.carrera << "\n";
+        out << "Materias aprobadas: " << a.materiasAprobadas << "\n";
+        out << "Promedio general: " << a.promedio << "\n";
+        return out;
+    }
+};
+
+
+
+int busquedaL(const std::string& nombre, Alumno arr[], int ultind) {
+
+    int i = 0;
+
+    while(i <= ultind) {
+
+        if(arr[i].getNombre() == nombre)
+            return i;
+
+        i = i + 1;
+    }
+
+    return -1;
+}
+
+
+
+void buscarSolicitud(Cola<Alumno>& solicitudes) {
+
+    if(solicitudes.empty()) {
+        std::cout << "No hay solicitudes registradas.\n\n";
+        return;
+    }
+
+    std::string nombreBuscado;
+    std::cout << "Ingrese el nombre del alumno a buscar: ";
+    getline(std::cin, nombreBuscado);
+
+    int n = solicitudes.size();
+
+
+    std::queue<Alumno> copia = solicitudes.getQueue();
+    Alumno* arr = new Alumno[n];
+
+    for(int i = 0; i < n; i++){
+        arr[i] = copia.front();
+        copia.pop();
+    }
+
+
+    int pos = busquedaL(nombreBuscado, arr, n - 1);
+
+    if(pos == -1) {
+        std::cout << "La solicitud NO se encuentra. Debe dar de alta la solicitud.\n\n";
+    } else {
+        std::cout << "La solicitud SÍ está registrada.\n";
+        std::cout << "Faltan " << pos << " constancias antes de su turno.\n\n";
+    }
+
+    delete[] arr;
+}
+
+
+int main(){
+    Cola<Alumno> Solicitudes;
+    int opcion;
+
+    do {
+        std::cout << "MENU DE SOLICITUDES\n";
+        std::cout << "1. Dar de alta solicitud\n";
+        std::cout << "2. Elaborar constancia\n";
+        std::cout << "3. Buscar solicitud\n";
+        std::cout << "4. Salir\n";
+        std::cout << "Opcion: ";
+        std::cin >> opcion;
+        std::cin.ignore();
+
+        if(opcion == 1){
+            Alumno A;
+            std::cin >> A;
+            Solicitudes.enqueue(A);
+            std::cout << "Solicitud registrada correctamente.\n\n";
+        }
+        else if(opcion == 2){
+            if(!Solicitudes.empty()){
+                Alumno atendido = Solicitudes.dequeue();
+                std::cout << atendido;
+            } else {
+                std::cout << "No hay solicitudes pendientes.\n\n";
+            }
+        }
+        else if(opcion == 3){
+            buscarSolicitud(Solicitudes);
+        }
+
+    } while(opcion != 4);
+
+    std::cout << "Programa finalizado.\n";
+    return 0;
+}
