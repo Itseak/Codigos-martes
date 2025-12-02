@@ -1,0 +1,186 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+class Alumno {
+private:
+    std::string nombre;
+    std::string carrera;
+    int materiasAprobadas;
+    float promedio;
+
+public:
+    Alumno() : nombre(""), carrera(""), materiasAprobadas(0), promedio(0) {}
+
+    std::string getNombre() const { return nombre; }
+    float getPromedio() const { return promedio; }
+
+    friend std::istream& operator>>(std::istream& in, Alumno& a){
+        std::cout << "Nombre del alumno: ";
+        getline(in, a.nombre);
+
+        std::cout << "Carrera: ";
+        getline(in, a.carrera);
+
+        std::cout << "Total de materias aprobadas: ";
+        in >> a.materiasAprobadas;
+
+        std::cout << "Promedio general: ";
+        in >> a.promedio;
+
+        in.ignore();
+        return in;
+    }
+
+    friend std::ostream& operator<<(std::ostream& out, const Alumno& a){
+        out << "\nCONSTANCIA\n";
+        out << "Nombre: " << a.nombre << "\n";
+        out << "Carrera: " << a.carrera << "\n";
+        out << "Materias aprobadas: " << a.materiasAprobadas << "\n";
+        out << "Promedio general: " << a.promedio << "\n";
+        return out;
+    }
+};
+
+
+void insercionPorPromedio(std::vector<Alumno>& arr){
+    int ultind = arr.size() - 1;
+    int i = 1;
+
+    while(i <= ultind){
+        Alumno aux = arr[i];
+        int j = i;
+
+        while(j > 0 && aux.getPromedio() > arr[j-1].getPromedio()){
+            arr[j] = arr[j-1];
+            j--;
+        }
+
+        if(i != j){
+            arr[j] = aux;
+        }
+
+        i++;
+    }
+}
+
+
+void insercionPorNombre(Alumno* arr, int n){
+    for(int i = 1; i < n; i++){
+        Alumno aux = arr[i];
+        int j = i;
+
+        while(j > 0 && aux.getNombre() < arr[j-1].getNombre()){
+            arr[j] = arr[j-1];
+            j--;
+        }
+
+        arr[j] = aux;
+    }
+}
+
+
+int busquedaBinariaNombre(Alumno* arr, int n, const std::string& nombre){
+    int i = 0;
+    int j = n - 1;
+
+    while(i <= j){
+        int m = (i + j) / 2;
+
+        if(arr[m].getNombre() == nombre)
+            return m;
+
+        if(nombre < arr[m].getNombre())
+            j = m - 1;
+        else
+            i = m + 1;
+    }
+    return -1;
+}
+
+
+int buscarPorNombreOri(const std::vector<Alumno>& lista, const std::string& nombre){
+    for(int i = 0; i < lista.size(); i++){
+        if(lista[i].getNombre() == nombre)
+            return i;
+    }
+    return -1;
+}
+
+
+void buscarSolicitud(const std::vector<Alumno>& lista){
+    if(lista.empty()){
+        std::cout << "No hay solicitudes registradas.\n\n";
+        return;
+    }
+
+    std::string nombreBuscado;
+    std::cout << "Ingrese el nombre del alumno a buscar: ";
+    getline(std::cin, nombreBuscado);
+
+    int n = lista.size();
+    Alumno* temp = new Alumno[n];
+
+
+    for(int i = 0; i < n; i++){
+        temp[i] = lista[i];
+    }
+
+
+    insercionPorNombre(temp, n);
+
+
+    int posTemp = busquedaBinariaNombre(temp, n, nombreBuscado);
+
+    if(posTemp == -1){
+        std::cout << "La solicitud no se encuentra. Debe dar de alta una solicitud.\n\n";
+        delete[] temp;
+        return;
+    }
+
+
+    Alumno encontrado = temp[posTemp];
+    delete[] temp;
+
+
+    int posReal = buscarPorNombreOri(lista, nombreBuscado);
+
+    std::cout << "\nSolicitud encontrada:\n";
+    std::cout << lista[posReal];
+    std::cout << "Lugar en la lista (1 = mejor promedio): " << posReal + 1 << "\n\n";
+}
+
+
+
+
+int main(){
+    std::vector<Alumno> Solicitudes;
+    int opcion;
+
+    do {
+        std::cout << "MENU DE SOLICITUDES\n";
+        std::cout << "1. Dar de alta solicitud\n";
+        std::cout << "2. Buscar solicitud\n";
+        std::cout << "3. Salir\n";
+        std::cout << "Opcion: ";
+        std::cin >> opcion;
+        std::cin.ignore();
+
+        if(opcion == 1){
+            Alumno A;
+            std::cin >> A;
+            Solicitudes.push_back(A);
+
+            insercionPorPromedio(Solicitudes);
+
+            std::cout << "Solicitud registrada correctamente.\n\n";
+        }
+        else if(opcion == 2){
+            buscarSolicitud(Solicitudes);
+        }
+
+    } while(opcion != 3);
+
+    std::cout << "Programa finalizado.\n";
+    return 0;
+}
