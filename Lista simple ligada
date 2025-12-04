@@ -1,0 +1,265 @@
+#include <iostream>
+#include <cstring>
+
+template<class T>
+class LSLSE;
+
+
+template<class T>
+class node{
+private:
+    T data;
+    node<T>* sig;
+
+public:
+    node() : sig(nullptr) {}
+
+
+    T& getData() { return data; }
+    const T& getData() const { return data; }
+
+
+    node<T>* getSig() { return sig; }
+    const node<T>* getSig() const { return sig; }
+    void setSig(node<T>* s) { sig = s; }
+
+    friend class LSLSE<T>;
+};
+
+
+template<class T>
+class LSLSE{
+private:
+    node<T>* lista;
+
+public:
+    LSLSE() : lista(nullptr) {}
+
+    bool vacia() const { return lista == nullptr; }
+
+    node<T>* primero() const { return lista; }
+
+    node<T>* ultimo() const {
+        node<T>* aux = lista;
+        if (aux == nullptr) return nullptr;
+        while (aux->getSig() != nullptr)
+            aux = aux->getSig();
+        return aux;
+    }
+
+    node<T>* anterior(node<T>* pos) const {
+        node<T>* aux = lista;
+        if (aux == nullptr || pos == nullptr) return nullptr;
+        while (aux != nullptr && aux->getSig() != pos)
+            aux = aux->getSig();
+        return aux;
+    }
+
+    void insertar(node<T>* pos, T elem) {
+        node<T>* nuevo = new node<T>;
+        nuevo->getData() = elem;
+
+        if (pos == nullptr) {
+            nuevo->setSig(lista);
+            lista = nuevo;
+        } else {
+            nuevo->setSig(pos->getSig());
+            pos->setSig(nuevo);
+        }
+    }
+
+    bool eliminar(node<T>* pos) {
+        if (vacia() || pos == nullptr) return false;
+
+        if (pos == lista) {
+            lista = lista->getSig();
+        } else {
+            anterior(pos)->setSig(pos->getSig());
+        }
+        delete pos;
+        return true;
+    }
+
+    void imprimir() const {
+        node<T>* aux = lista;
+        while (aux != nullptr) {
+            std::cout << aux->getData() << "\n";
+            aux = aux->getSig();
+        }
+    }
+};
+
+class SocioClub {
+private:
+    int NumeroSocio;
+    char NombreSocio[50];
+    char Domicilio[80];
+    int AnIngreso;
+
+public:
+    SocioClub() {
+        NumeroSocio = 0;
+        strcpy(NombreSocio, "");
+        strcpy(Domicilio, "");
+        AnIngreso = 0;
+    }
+
+    SocioClub(int num, const char* nom, const char* dom, int anio) {
+        NumeroSocio = num;
+        strcpy(NombreSocio, nom);
+        strcpy(Domicilio, dom);
+        AnIngreso = anio;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const SocioClub& s) {
+        os << "NumSocio: " << s.NumeroSocio
+           << " | Nombre: " << s.NombreSocio
+           << " | Domicilio: " << s.Domicilio
+           << " | AnioIngreso: " << s.AnIngreso;
+        return os;
+    }
+
+    bool operator<(const SocioClub& otro) const {
+        return NumeroSocio < otro.NumeroSocio;
+    }
+
+    bool operator==(const SocioClub& otro) const {
+        return NumeroSocio == otro.NumeroSocio;
+    }
+
+    int getNumero() const { return NumeroSocio; }
+    const char* getNombre() const { return NombreSocio; }
+    const char* getDomicilio() const { return Domicilio; }
+};
+
+
+
+void insertarOrdenado(LSLSE<SocioClub>& lista, const SocioClub& nuevo) {
+    node<SocioClub>* aux = lista.primero();
+    node<SocioClub>* ant = nullptr;
+
+    while (aux != nullptr && aux->getData() < nuevo) {
+        ant = aux;
+        aux = aux->getSig();
+    }
+
+    if (aux != nullptr && aux->getData() == nuevo) {
+        std::cout << "Error: Ya existe un socio con ese numero.\n";
+        return;
+    }
+
+    lista.insertar(ant, nuevo);
+}
+
+node<SocioClub>* buscarPorNumero(LSLSE<SocioClub>& lista, int num) {
+    node<SocioClub>* aux = lista.primero();
+
+    while (aux != nullptr) {
+        if (aux->getData().getNumero() == num)
+            return aux;
+        aux = aux->getSig();
+    }
+
+    return nullptr;
+}
+
+node<SocioClub>* buscarPorNombreDom(LSLSE<SocioClub>& lista,
+                                    const char* nom, const char* dom) {
+    node<SocioClub>* aux = lista.primero();
+
+    while (aux != nullptr) {
+        if (strcmp(aux->getData().getNombre(), nom) == 0 &&
+            strcmp(aux->getData().getDomicilio(), dom) == 0)
+            return aux;
+
+        aux = aux->getSig();
+    }
+    return nullptr;
+}
+
+
+int main() {
+    LSLSE<SocioClub> socios;
+    int opcion;
+
+    do {
+        std::cout << "\nMENU CLUB DE SOCIOS\n"
+                  << "1. Registrar nuevo socio\n"
+                  << "2. Dar de baja\n"
+                  << "3. Reporte de socios\n"
+                  << "4. Buscar por nombre y domicilio\n"
+                  << "5. Total de socios\n"
+                  << "0. Salir\n"
+                  << "Opcion: ";
+        std::cin >> opcion;
+
+        if (opcion == 1) {
+            int num, an;
+            char nom[50], dom[80];
+
+            std::cout << "Numero de socio: ";
+            std::cin >> num;
+            std::cin.ignore();
+
+            std::cout << "Nombre: ";
+            std::cin.getline(nom, 50);
+
+            std::cout << "Domicilio: ";
+            std::cin.getline(dom, 80);
+
+            std::cout << "Año de ingreso: ";
+            std::cin >> an;
+
+            insertarOrdenado(socios, SocioClub(num, nom, dom, an));
+        }
+
+        else if (opcion == 2) {
+            int num;
+            std::cout << "Numero a eliminar: ";
+            std::cin >> num;
+
+            node<SocioClub>* pos = buscarPorNumero(socios, num);
+            if (pos == nullptr) {
+                std::cout << "No existe ese socio.\n";
+            } else {
+                socios.eliminar(pos);
+                std::cout << "Socio eliminado.\n";
+            }
+        }
+
+        else if (opcion == 3) {
+            std::cout << "\nLISTA DE SOCIOS\n";
+            socios.imprimir();
+        }
+
+        else if (opcion == 4) {
+            char nom[50], dom[80];
+            std::cin.ignore();
+
+            std::cout << "Nombre: ";
+            std::cin.getline(nom, 50);
+
+            std::cout << "Domicilio: ";
+            std::cin.getline(dom, 80);
+
+            node<SocioClub>* x = buscarPorNombreDom(socios, nom, dom);
+            if (x == nullptr)
+                std::cout << "No encontrado.\n";
+            else
+                std::cout << x->getData() << "\n";
+        }
+
+        else if (opcion == 5) {
+            int total = 0;
+            node<SocioClub>* aux = socios.primero();
+            while (aux != nullptr) {
+                total++;
+                aux = aux->getSig();
+            }
+            std::cout << "Total de socios: " << total << "\n";
+        }
+
+    } while (opcion != 0);
+
+    return 0;
+}
